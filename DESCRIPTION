@@ -12,6 +12,8 @@ Description: Uses bootstrap to test zero order correlation being equal to a
     partial or semi-partial correlation (one or two tailed). Confidence 
     intervals for the parameter (zero order minus partial) can also be
     determined.
+URL: https://github.com/djrichar92/zeroEQpart
+BugReports: https://github.com/djrichar92/zeroEQpart/issues
 License: GPL-2
 Encoding: UTF-8
 LazyData: FALSE
