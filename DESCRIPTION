@@ -1,0 +1,19 @@
+Package: zeroEQpart
+Type: Package
+Title: Zero Order vs (Semi) Partial Correlation Test
+Version: 0.1.0
+Imports: ppcor, stats, utils, MASS
+Authors@R: as.person(c(
+              "Dan Richard <djrichar@ualberta.ca> [aut, cre]",
+              "Karen Buro <BuroK@macewan.ca> [ctb]",
+              "Wanhua Su <SuW3@macewan.ca> [ctb]"
+              ))
+Description: Uses bootstrap to test zero order correlation being equal to a 
+    partial or semi-partial correlation (one or two tailed). Confidence 
+    intervals for the parameter (zero order minus partial) can also be
+    determined.
+License: GPL-2
+Encoding: UTF-8
+LazyData: FALSE
+Date: 2018-05-17
+RoxygenNote: 6.0.1
