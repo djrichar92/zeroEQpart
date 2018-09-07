@@ -4,7 +4,8 @@
 \alias{pzcor}
 \title{Calculate P-Value of Equal Zero Order and (Semi) Partial Correlations}
 \usage{
-pzcor(x, y, z, semi = FALSE, k = 1000, method = "pearson", test = "eq")
+pzcor(x, y, z, semi = FALSE, k = 1000, method = "pearson",
+  test = "eq")
 }
 \arguments{
 \item{x}{a numeric vector.}
