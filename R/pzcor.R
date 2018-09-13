@@ -1,12 +1,13 @@
-#' @title Calculate P-Value of Equal Zero Order and (Semi) Partial Correlations
-
-#'@description Calculate the p-value of a zero order correlation being equal to
-#'  a partial or semi-partial correlation using bootstrap.
+#' @title Test for Equal Zero Order and (Semi) Partial Correlation
+#'
+#'@description Compute a bootstrap test to determine whether zero order
+#'  correlation is equal to partial or semi-partial correlation.
+#'
 #'@param x a numeric vector.
 #'
 #'@param y a numeric vector.
 #'
-#'@param z a numeric vector.
+#'@param z a numeric vector (data.frame, matrix, etc.)
 #'
 #'@param semi logical. If \code{TRUE}, then the semi-partial correlation between
 #'  \code{x} and \code{y} given \code{z} is used. If \code{FALSE} (default),
@@ -15,21 +16,30 @@
 #'
 #'@param k the number of bootstrap samples taken (default is 1000).
 #'
-#'@param method a character string indicating which partial correlation
+#'@param method a character string indicating which correlation
 #'  coefficient is to be computed. One of "pearson" (default), "kendall", or
 #'  "spearman" can be abbreviated.
 #'
-#'@param test character string denoting the type of test to be administered. Can
-#'  be one of the three: \itemize{ \item{\code{'eq'} tests  \code{p.xy - p.xy.z =
-#'  0} (default)} \item{\code{'gt'} tests  \code{p.xy - p.xy.z > 0}}
-#'  \item{\code{'lt'} tests  \code{p.xy - p.xy.z < 0}} }
+#'@param test character string denoting the null hypothesis to be tested. Can
+#'  be one of the three:
+#'  \itemize{
+#'      \item{\code{'eq'} tests  \eqn{\rho.xy - \rho.xy.z = 0} (default)}
+#'      \item{\code{'gt'} tests  \eqn{\rho.xy - \rho.xy.z \ge 0}}
+#'      \item{\code{'lt'} tests  \eqn{\rho.xy - \rho.xy.z \le 0}} }
 #'
 #'@details Uses the bias-corrected and accelerated (BCa) bootstrap method to
-#'  estimate the distribution of the difference \eqn{\theta = \rho_xy -
-#'  \rho_xy|z} where \eqn{\rho_xy} is the zero order correlation between
-#'  variables \eqn{x} and \eqn{y} and \eqn{\rho_xy|z} is the (semi) partial
-#'  correlation between the respective variables while accounting for those in
-#'  \eqn{z}. If \eqn{|\theta| > 0}, then the p-value will not be calculated.
+#'  test if the difference \eqn{\rho.xy - \rho.xy.z} is equal to, above, or
+#'  below zero where \eqn{\rho.xy} is the zero order correlation between
+#'  variables \eqn{x} and \eqn{y}, and \eqn{\rho.xy.z} is the (semi) partial
+#'  correlation between the respective variables after partialing out
+#'  variables represented by \eqn{z}.
+#'
+#'  If the bootstrap distribution of
+#'  \eqn{\rho.xy - \rho.xy.z} is strictly above or below zero, then
+#'  the p-value provided is the most extreme value that can be determined
+#'  by the test. In the case of highly correlated variables, the
+#'  covariance matrix may be singular which will lead to \code{k_eff} being
+#'  less than \code{k} (as \eqn{\rho.xy - \rho.xy.z} would not be computed).
 #'
 #'@return \item{acceleration}{the acceleration used for the BCa method.}
 #'
@@ -38,6 +48,8 @@
 #'  \item{bias}{the bias used for the BCa method.}
 #'
 #'  \item{call}{shows the function call.}
+#'
+#'  \item{difference}{calculated from the data. Same as \code{p.xy - p.xy.z}.}
 #'
 #'  \item{distribution}{the estimated distribution of the difference as
 #'  determined through bootstrapping.}
@@ -57,8 +69,6 @@
 #'  \item{semi}{logical. If \code{TRUE}, \code{p.xy.z} is the semi-partial
 #'  correlation. Otherwise \code{p.xy.z} is the partial correlation.}
 #'
-#'  \item{difference}{calculated from the data. Same as \code{p.xy - p.xy.z}.}
-#'
 #'  \item{test}{shows the type of test performed.}
 #'
 #'@seealso \code{\link{pzconf}}
@@ -73,14 +83,25 @@
 #' data <- mvrnorm(n=100, mu=mu, Sigma=Sigma)
 #'
 #' # p.(1,2) = p.(1,2)|(3,4) test
-#' test <- pzcor(data[,1], data[,2], data[,c(3,4)], k = 2000, semi = FALSE, test = 'eq')
+#' test <- pzcor(data[,1], data[,2], data[,c(3,4)], k = 2000, semi = FALSE,
+#'               test = 'eq')
 #' hist(test$distribution)
 #' test
 
 #' @export
-pzcor <- function(x, y, z, semi = FALSE, k = 1000, method = "pearson",
-                  test = 'eq'){
+pzcor <- function(x, y, z, semi = FALSE, k = 1000, method = "pearson", test = 'eq'){
   # generic function for S3 class: pzcor
+  if(!test %in% c('eq','gt','lt')){
+    stop("test must be one of 'eq', 'gt', or 'lt'")
+  }
+
+  if(k < 2 | k %% 1 != 0){
+    stop('k must be an integer of at least 2')
+  }
+
+  if(!semi %in% c(TRUE, FALSE)){
+    stop('semi must be boolean')
+  }
   UseMethod("pzcor")
 }
 
@@ -115,6 +136,8 @@ pzcor.default <- function(x, y, z, semi = FALSE, k = 1000, method = "pearson",
 
                 distribution = dist_result$distribution,
 
+                difference = dist_result$difference,
+
                 k_eff = k_eff,
 
                 method = method,
@@ -126,8 +149,6 @@ pzcor.default <- function(x, y, z, semi = FALSE, k = 1000, method = "pearson",
                 p.xy.z = dist_result$p.xy.z,
 
                 semi = semi,
-
-                difference = dist_result$difference,
 
                 test = test
                 )
@@ -173,12 +194,15 @@ summary.pzcor <- function(object, ...){
                             Bootstrap_Size = object$k_eff
   )
 
-  relation <- 'equal to'
-  if(object$alpha %in% c(0,1)){
-    if(object$p.value < 0.5){
-      relation <- 'less than'
-    } else {
-      relation <- 'greater than'
+  relation <- ''
+  if(!is.nan(object$p.value)){
+    relation <- 'equal to'
+    if(object$alpha %in% c(0,1)){
+      if(object$p.value < 0.5){
+        relation <- 'less than'
+      } else {
+        relation <- 'greater than'
+      }
     }
   }
 
@@ -241,6 +265,10 @@ get_dist <- function(x, y, z, semi = FALSE, k = 1000, method = "pearson"){
   x <- data.matrix(x)
   y <- data.matrix(y)
   z <- data.matrix(z)
+
+  if(nrow(x)!=nrow(y) | nrow(x)!=nrow(z)){
+    stop('x,y,z require equal number of rows')
+  }
 
   zero_ord_cor <- function(ind){
     p.xy <- stats::cor(x[ind], y[ind], method = method)
@@ -323,6 +351,9 @@ get_acceleration <- function(dist){
   x_dist <- mean(dist) - dist
   num <- sum(x_dist^3)
   denom <- 6*sum(x_dist^2)^(3/2)
+  if(denom == 0){
+    stop('Standard deviation of bootstrap distribution is zero')
+  }
   return(num/denom)
 
 }

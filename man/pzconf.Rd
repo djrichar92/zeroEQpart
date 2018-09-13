@@ -2,35 +2,36 @@
 % Please edit documentation in R/pzconf.R
 \name{pzconf}
 \alias{pzconf}
-\title{Calculate Confidence Interval of Equal Zero Order and (Semi) Partial
-  Correlations}
+\title{Calculate Confidence Intervals for the Difference of Zero Order and
+  (Semi) Partial Correlation}
 \usage{
 pzconf(pzcor_obj, level = 0.9)
 }
 \arguments{
-\item{pzcor_obj}{pzcor object.}
+\item{pzcor_obj}{pzcor object (output from pzcor function).}
 
-\item{level}{numerical. Confidence level used to calculate the confidence 
+\item{level}{numerical. Confidence level used to calculate the confidence
 interval. This may be a vector so multiple intervals can be determined.}
 }
 \value{
 The confidence interval(s) is(are) displayed in a dataframe with four
-  columns: Level, Lower, Upper, and Warnings. Level refers to the confidence 
-  level of the interval. Lower and Upper are the respective lower and upper 
-  bounds of the interval. Warnings may say "Max Level Passed" to show that 
-  the specified confidence level is too high for the bootstrap estimate and 
-  should be neglected. The last row (named "Max") is the largest confidence 
-  level that can be determined by the given bootstrap estimate.
+  columns: Level, Lower, Upper, and Warnings. Level refers to the confidence
+  level of the interval. Lower and Upper are the respective lower and upper
+  bounds of the interval. Warnings may say "Max Level Passed" to show that
+  the specified confidence level exceeds the largest confidence interval
+  that can be determined from the test. The largest confidence interval is
+  shown in the last row (named "Max").
 }
 \description{
 The \code{pzconf} function calculates confidence intervals for a
-  zero order correlation minus a (semi) partial correlation (\code{p.xy -
-  p.xy.z}). It is intended to be used with the \code{\link{pzcor}} function.
+  zero order correlation minus a (semi) partial correlation (\eqn{\rho.xy -
+  \rho.xy.z}). It is intended to be used after the \code{\link{pzcor}}
+  function.
 }
 \details{
-The \code{pzconf} function calculates confidence intervals based on 
-  the bootstrap estimates determined from the \code{\link{pzcor}} function. 
-  See \code{?pzcor} for details.
+The \code{pzconf} function calculates confidence intervals based on
+  the bootstrap distribution determined from the \code{\link{pzcor}}
+  function. See \code{?pzcor} for details.
 }
 \examples{
 require(graphics)
@@ -45,7 +46,7 @@ data <- mvrnorm(n=100, mu=mu, Sigma=Sigma)
 test <- pzcor(data[,1], data[,2], data[,c(3,4)], k = 2000)
 hist(test$distribution)
 pzconf(test, c(0.9, 0.95, 0.99))
-  
+
 }
 \seealso{
 \code{\link{pzcor}}

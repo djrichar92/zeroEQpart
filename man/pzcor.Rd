@@ -2,7 +2,7 @@
 % Please edit documentation in R/pzcor.R
 \name{pzcor}
 \alias{pzcor}
-\title{Calculate P-Value of Equal Zero Order and (Semi) Partial Correlations}
+\title{Test for Equal Zero Order and (Semi) Partial Correlation}
 \usage{
 pzcor(x, y, z, semi = FALSE, k = 1000, method = "pearson",
   test = "eq")
@@ -12,7 +12,7 @@ pzcor(x, y, z, semi = FALSE, k = 1000, method = "pearson",
 
 \item{y}{a numeric vector.}
 
-\item{z}{a numeric vector.}
+\item{z}{a numeric vector (data.frame, matrix, etc.)}
 
 \item{semi}{logical. If \code{TRUE}, then the semi-partial correlation between
 \code{x} and \code{y} given \code{z} is used. If \code{FALSE} (default),
@@ -21,14 +21,16 @@ given \code{z} is used.}
 
 \item{k}{the number of bootstrap samples taken (default is 1000).}
 
-\item{method}{a character string indicating which partial correlation
+\item{method}{a character string indicating which correlation
 coefficient is to be computed. One of "pearson" (default), "kendall", or
 "spearman" can be abbreviated.}
 
-\item{test}{character string denoting the type of test to be administered. Can
-be one of the three: \itemize{ \item{\code{'eq'} tests  \code{p.xy - p.xy.z =
-0} (default)} \item{\code{'gt'} tests  \code{p.xy - p.xy.z > 0}}
-\item{\code{'lt'} tests  \code{p.xy - p.xy.z < 0}} }}
+\item{test}{character string denoting the null hypothesis to be tested. Can
+be one of the three:
+\itemize{
+    \item{\code{'eq'} tests  \eqn{\rho.xy - \rho.xy.z = 0} (default)}
+    \item{\code{'gt'} tests  \eqn{\rho.xy - \rho.xy.z \ge 0}}
+    \item{\code{'lt'} tests  \eqn{\rho.xy - \rho.xy.z \le 0}} }}
 }
 \value{
 \item{acceleration}{the acceleration used for the BCa method.}
@@ -38,6 +40,8 @@ be one of the three: \itemize{ \item{\code{'eq'} tests  \code{p.xy - p.xy.z =
  \item{bias}{the bias used for the BCa method.}
 
  \item{call}{shows the function call.}
+
+ \item{difference}{calculated from the data. Same as \code{p.xy - p.xy.z}.}
 
  \item{distribution}{the estimated distribution of the difference as
  determined through bootstrapping.}
@@ -57,21 +61,26 @@ be one of the three: \itemize{ \item{\code{'eq'} tests  \code{p.xy - p.xy.z =
  \item{semi}{logical. If \code{TRUE}, \code{p.xy.z} is the semi-partial
  correlation. Otherwise \code{p.xy.z} is the partial correlation.}
 
- \item{difference}{calculated from the data. Same as \code{p.xy - p.xy.z}.}
-
  \item{test}{shows the type of test performed.}
 }
 \description{
-Calculate the p-value of a zero order correlation being equal to
- a partial or semi-partial correlation using bootstrap.
+Compute a bootstrap test to determine whether zero order
+ correlation is equal to partial or semi-partial correlation.
 }
 \details{
 Uses the bias-corrected and accelerated (BCa) bootstrap method to
- estimate the distribution of the difference \eqn{\theta = \rho_xy -
- \rho_xy|z} where \eqn{\rho_xy} is the zero order correlation between
- variables \eqn{x} and \eqn{y} and \eqn{\rho_xy|z} is the (semi) partial
- correlation between the respective variables while accounting for those in
- \eqn{z}. If \eqn{|\theta| > 0}, then the p-value will not be calculated.
+ test if the difference \eqn{\rho.xy - \rho.xy.z} is equal to, above, or
+ below zero where \eqn{\rho.xy} is the zero order correlation between
+ variables \eqn{x} and \eqn{y}, and \eqn{\rho.xy.z} is the (semi) partial
+ correlation between the respective variables after partialing out
+ variables represented by \eqn{z}.
+
+ If the bootstrap distribution of
+ \eqn{\rho.xy - \rho.xy.z} is strictly above or below zero, then
+ the p-value provided is the most extreme value that can be determined
+ by the test. In the case of highly correlated variables, the
+ covariance matrix may be singular which will lead to \code{k_eff} being
+ less than \code{k} (as \eqn{\rho.xy - \rho.xy.z} would not be computed).
 }
 \examples{
 require(graphics)
@@ -83,7 +92,8 @@ Sigma <- matrix(.2, nrow=4, ncol=4) + diag(4)*.8
 data <- mvrnorm(n=100, mu=mu, Sigma=Sigma)
 
 # p.(1,2) = p.(1,2)|(3,4) test
-test <- pzcor(data[,1], data[,2], data[,c(3,4)], k = 2000, semi = FALSE, test = 'eq')
+test <- pzcor(data[,1], data[,2], data[,c(3,4)], k = 2000, semi = FALSE,
+              test = 'eq')
 hist(test$distribution)
 test
 }

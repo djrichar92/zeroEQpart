@@ -1,19 +1,21 @@
-#' @title Test for Equal Zero Order and (Semi) Partial Correlations
-
+#' @title Zero Order vs (Semi) Partial Correlation Test and CI
+#'
 #' @description Calculate the statistical significance of a zero order
 #'   correlation being equal to a partial or semi-partial correlation using
-#'   the bias-corrected and accelerated bootstrap method.
-#'   
-#' @section pzcor: The \code{pzcor} function performs one of the specified 
-#'   tests: \itemize{ \item{\code{p.xy - p.xy.z = 0} (default)} \item{\code{p.xy
-#'   - p.xy.z > 0}} \item{ \code{p.xy - p.xy.z < 0}} } See \code{?pzcor} for 
-#'   details.
-#'   
-#' @section pzconf: The \code{pzconf} function computes a confidence interval 
-#'   for the statistic: \code{p.xy - p.xy.z}. To be used with \code{pzcor}. See 
-#'   \code{?pzconf} for details.
-#'   
-#' @docType package
-#' @name zeroEQpart
-#'   
-NULL
+#'   the bias-corrected and accelerated bootstrap method from "An Introduction
+#'   to the Bootstrap" Efron (1983) <0-412-04231-2>. Confidence intervals for
+#'   the parameter (zero order minus partial) can also be determined.
+#'
+#' @section pzcor: The \code{pzcor} function tests one of the following null
+#'   hypotheses: \itemize{
+#'                   \item{\eqn{\rho.xy - \rho.xy.z = 0} (default)}
+#'                   \item{\eqn{\rho.xy - \rho.xy.z \ge 0}}
+#'                   \item{ \eqn{\rho.xy - \rho.xy.z \le 0}}
+#'                   }
+#'   See \code{\link{pzcor}} for details.
+#'
+#' @section pzconf: The \code{pzconf} function computes confidence intervals
+#'   for the parameter: \eqn{\rho.xy - \rho.xy.z}. To be used with
+#'   \code{pzcor}. See \code{\link{pzconf}} for details.
+#'
+"_PACKAGE"

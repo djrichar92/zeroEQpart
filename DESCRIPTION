@@ -1,6 +1,6 @@
 Package: zeroEQpart
 Type: Package
-Title: Zero Order vs (Semi) Partial Correlation Test
+Title: Zero Order vs (Semi) Partial Correlation Test and CI
 Version: 0.1.0
 Imports: ppcor, stats, utils, MASS
 Authors@R: as.person(c(
@@ -11,7 +11,9 @@ Authors@R: as.person(c(
 Description: Uses bootstrap to test zero order correlation being equal to a 
     partial or semi-partial correlation (one or two tailed). Confidence 
     intervals for the parameter (zero order minus partial) can also be
-    determined.
+    determined. Implements the bias-corrected and accelerated bootstrap
+    method as described in "An Introduction to the Bootstrap" Efron (1983) 
+    <0-412-04231-2>.
 URL: https://github.com/djrichar92/zeroEQpart
 BugReports: https://github.com/djrichar92/zeroEQpart/issues
 License: GPL-2
